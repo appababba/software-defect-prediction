@@ -1,3 +1,3 @@
 ## View the Full Report
 
-📄 [Open the report](Defect Prediction Report.pdf)
+📄 [Open the report](defect_prediction.pdf)
