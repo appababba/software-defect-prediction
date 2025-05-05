@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Defect Prediction Report</title>
+</head>
+<body>
+  <h1>Defect Prediction Summary</h1>
+
+  <h2>Motivation</h2>
+  <p>I picked CM1 and JM1 because they’re simple NASA PROMISE benchmarks. CM1 is small (498 modules, about 10 % defects) so it’s a tough, skewed problem. JM1 is much bigger (13 k modules, ~16 % defects) and lets me see how the same pipelines scale and whether extra data boosts performance.</p>
+
+  <h2>Model and Feature Choices</h2>
+  <p>I went with three models. Logistic Regression gives me a quick interpretable baseline. Random Forest can grab non‑linear interactions that LR misses. Gaussian NB is a lightweight sanity check. I used <code>SelectKBest</code> with <code>k = 15</code> to drop noise while keeping most of the signal and speeding things up.</p>
+
+  <h2>Hyperparameter Search</h2>
+  <p>I tuned the Random Forest pipeline on JM1 with 40 random trials:</p>
+  <ul>
+    <li>SMOTE neighbors 3 or 5</li>
+    <li>n_estimators 100 to 600</li>
+    <li>max_depth None / 10 / 20</li>
+    <li>min_samples_leaf 1 or 3</li>
+  </ul>
+  <p>The search finished in about five minutes on my laptop.</p>
+
+  <h2>Summary Metrics</h2>
+  <table border="1" class="dataframe table table-striped">
+    <thead>
+      <tr style="text-align: right;">
+        <th>acc</th><th>prec</th><th>rec</th><th>f1</th><th>roc_auc</th><th>pr_auc</th><th>set</th><th>model</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0.750000</td><td>0.200000</td><td>0.500000</td><td>0.285714</td><td>0.682222</td><td>0.225887</td><td>CM1</td><td>LogReg</td></tr>
+      <tr><td>0.780000</td><td>0.166667</td><td>0.300000</td><td>0.214286</td><td>0.643889</td><td>0.179233</td><td>CM1</td><td>RF</td></tr>
+      <tr><td>0.750000</td><td>0.058824</td><td>0.100000</td><td>0.074074</td><td>0.536667</td><td>0.127429</td><td>CM1</td><td>GNB</td></tr>
+      <tr><td>0.723211</td><td>0.303299</td><td>0.567696</td><td>0.395368</td><td>0.723959</td><td>0.360287</td><td>JM1</td><td>LogReg</td></tr>
+      <tr><td>0.836047</td><td>0.481707</td><td>0.375297</td><td>0.421896</td><td>0.801787</td><td>0.438474</td><td>JM1</td><td>RF</td></tr>
+      <tr><td>0.825445</td><td>0.417355</td><td>0.239905</td><td>0.304676</td><td>0.705738</td><td>0.313388</td><td>JM1</td><td>GNB</td></tr>
+      <tr><td>0.772435</td><td>0.359813</td><td>0.548694</td><td>0.434619</td><td>0.764308</td><td>0.391687</td><td>JM1</td><td>RF_tuned</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Related Work</h2>
+  <p><strong>Oueslati &amp; Manita (2024)</strong> applied several classifiers—including Logistic Regression optimized via a Fractional Chaotic Grey Wolf Optimizer, Random Forest, and SVM—on CM1 and JM1. On CM1, their tuned Logistic Regression (LR-FCGWO) achieved <em>92.98% accuracy</em> and <em>F1-score 93.28%</em>, slightly outperforming Random Forest (92.43% acc., F1=92.72%). On JM1, Random Forest led with <em>91.70% accuracy</em> and <em>F1-score 91.72%</em>, while LR-FCGWO scored 87.88%/87.22% (acc./F1). These results provide strong baselines for comparison with our own metrics.</p>
+  <p><em>Reference:</em> Oueslati, H. &amp; Manita, M. (2024). <em>Enhanced Software Defect Prediction Using Fractional Chaotic Grey Wolf Optimizer</em>. Proceedings of the ENASE Conference.</p>
+
+  <h2>Confusion Matrices</h2>
+  <img src="CM1_GNB_confusion.png" alt="CM1 GNB Confusion" style="max-width:800px;margin-bottom:20px;">
+  <img src="CM1_LogReg_confusion.png" alt="CM1 LR Confusion" style="max-width:800px;margin-bottom:20px;">
+  <img src="CM1_RF_confusion.png" alt="CM1 RF Confusion" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_GNB_confusion.png" alt="JM1 GNB Confusion" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_LogReg_confusion.png" alt="JM1 LR Confusion" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_RF_confusion.png" alt="JM1 RF Confusion" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_RF_tuned_confusion.png" alt="JM1 RF Tuned Confusion" style="max-width:800px;margin-bottom:20px;">
+
+  <h2>ROC Curves</h2>
+  <img src="CM1_GNB_roc.png" alt="CM1 GNB ROC" style="max-width:800px;margin-bottom:20px;">
+  <img src="CM1_LogReg_roc.png" alt="CM1 LR ROC" style="max-width:800px;margin-bottom:20px;">
+  <img src="CM1_RF_roc.png" alt="CM1 RF ROC" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_GNB_roc.png" alt="JM1 GNB ROC" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_LogReg_roc.png" alt="JM1 LR ROC" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_RF_roc.png" alt="JM1 RF ROC" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_RF_tuned_roc.png" alt="JM1 RF Tuned ROC" style="max-width:800px;margin-bottom:20px;">
+
+  <h2>Precision-Recall Curves</h2>
+  <img src="CM1_GNB_pr.png" alt="CM1 GNB PR" style="max-width:800px;margin-bottom:20px;">
+  <img src="CM1_LogReg_pr.png" alt="CM1 LR PR" style="max-width:800px;margin-bottom:20px;">
+  <img src="CM1_RF_pr.png" alt="CM1 RF PR" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_GNB_pr.png" alt="JM1 GNB PR" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_LogReg_pr.png" alt="JM1 LR PR" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_RF_pr.png" alt="JM1 RF PR" style="max-width:800px;margin-bottom:20px;">
+  <img src="JM1_RF_tuned_pr.png" alt="JM1 RF Tuned PR" style="max-width:800px;margin-bottom:20px;">
+</body>
+</html>
